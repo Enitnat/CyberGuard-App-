@@ -1,19 +1,17 @@
-// app/lesson/[id].tsx
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Button, Alert, Image } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { Question, lessons } from '@/data/lessons';
-import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { Question, lessons } from '@/data/lessons'; 
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type QuestionProps = {
   question: Question;
   onAnswer: (isCorrect: boolean) => void;
 };
 
-// --- Question Component (Inline for simplicity, can be moved to components/Question.tsx) ---
 const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
@@ -27,7 +25,12 @@ const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
     }
     setAnswered(true);
     const isCorrect = selectedOption === question.correctAnswer;
-    onAnswer(isCorrect);
+
+    setTimeout(() => {
+        onAnswer(isCorrect);
+        setAnswered(false);
+        setSelectedOption(null);
+    }, 1500);
   };
 
   const getOptionStyle = (option: string) => {
@@ -58,10 +61,8 @@ const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
           key={index}
           style={[
             getOptionStyle(option),
-            selectedOption === option && {
-              borderColor: answered
-                ? (option === question.correctAnswer ? 'green' : 'red')
-                : themeColors.tint,
+            selectedOption === option && !answered && {
+              borderColor: themeColors.tint,
               borderWidth: 2,
             },
           ]}
@@ -72,32 +73,39 @@ const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
             color={
                 answered
                 ? (option === question.correctAnswer ? 'green' : (option === selectedOption ? 'red' : themeColors.text))
-                : themeColors.text // Default button color when not answered
+                : themeColors.text
             }
           />
         </ThemedView>
       ))}
 
       {!answered && (
-        <Button title="Check Answer" onPress={checkAnswer} color={themeColors.tint} />
+        <ThemedView style={[styles.actionButtonContainer, { backgroundColor: themeColors.tint }]}>
+          <Button 
+            title="Check Answer" 
+            onPress={checkAnswer} 
+            color="#FFFFFF"
+            disabled={selectedOption === null}
+          />
+        </ThemedView>
       )}
 
       {answered && (
         <ThemedView style={styles.explanationContainer}>
-          <ThemedText type="defaultSemiBold">Explanation:</ThemedText>
+          <ThemedText type="defaultSemiBold" style={{color: selectedOption === question.correctAnswer ? 'green' : 'red'}}>
+            {selectedOption === question.correctAnswer ? 'Correct!' : 'Not quite...'}
+          </ThemedText>
           <ThemedText>{question.explanation}</ThemedText>
-          <Button title="Next Question" onPress={() => onAnswer(selectedOption === question.correctAnswer)} color={themeColors.tint} />
         </ThemedView>
       )}
     </ThemedView>
   );
 };
 
-// --- Lesson Detail Screen ---
-export default function LessonDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>(); // Get the lesson ID from the URL
+export default function QuizScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const lesson = lessons.find(l => l.id === id);
+  const lesson = lessons.find(l => l.id === id); 
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -106,7 +114,7 @@ export default function LessonDetailScreen() {
   if (!lesson) {
     return (
       <ThemedView style={styles.container}>
-        <ThemedText>Lesson not found!</ThemedText>
+        <ThemedText>Quiz not found!</ThemedText>
       </ThemedView>
     );
   }
@@ -115,12 +123,8 @@ export default function LessonDetailScreen() {
     if (isCorrect) {
       setScore(prev => prev + 1);
     }
-
-    // Move to the next question or complete the lesson
     if (currentQuestionIndex < lesson.questions.length - 1) {
-      setTimeout(() => { // Give a moment to read explanation
-        setCurrentQuestionIndex(prev => prev + 1);
-      }, 1500);
+      setCurrentQuestionIndex(prev => prev + 1);
     } else {
       setLessonCompleted(true);
     }
@@ -131,18 +135,29 @@ export default function LessonDetailScreen() {
   return (
     <ThemedView style={styles.container}>
       <Stack.Screen options={{
-        title: lesson.title,
-        headerShown: true, // Show header for this screen
+        title: `${lesson.title} Quiz`,
+        headerShown: true,
       }} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+   <ScrollView contentContainerStyle={styles.scrollContent}>
         {!lessonCompleted ? (
           <QuestionComponent question={currentQuestion} onAnswer={handleAnswer} />
         ) : (
           <ThemedView style={styles.completionContainer}>
-            <ThemedText type="title">Lesson Completed!</ThemedText>
-            <ThemedText type="subtitle">Your Score: {score} / {lesson.questions.length}</ThemedText>
-            <Button title="Back to Lessons" onPress={() => router.back()} />
+            
+            {/* 1. Fixed closing tag */}
+            <ThemedText type="title">Quiz Completed!</ThemedText> 
+            
+            {/* 2. Fixed component name */}
+            <ThemedText>Your Score: {score} / {lesson.questions.length}</ThemedText> 
+            
+            <ThemedView style={[styles.actionButtonContainer, { backgroundColor: Colors.light.tint, width: '100%' }]}>
+              <Button 
+                title="Back to Lessons" 
+                onPress={() => router.back()} 
+                color="#FFFFFF"
+              />
+            </ThemedView>
           </ThemedView>
         )}
       </ScrollView>
@@ -175,7 +190,7 @@ const styles = StyleSheet.create({
   },
   questionImage: {
     width: '100%',
-    height: 200, // Adjust as needed
+    height: 200, 
     resizeMode: 'contain',
     marginBottom: 15,
   },
@@ -184,6 +199,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#ccc',
+  },
+  actionButtonContainer: {
+    borderRadius: 8,
+    padding: 5,
+    marginTop: 20,
+    overflow: 'hidden',
   },
   correctOption: {
     borderColor: 'green',
@@ -205,5 +226,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 20,
     padding: 20,
+    width: '100%',
   }
 });

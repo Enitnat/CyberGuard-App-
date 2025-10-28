@@ -1,21 +1,19 @@
-// app/(tabs)/_layout.tsx
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons'; // Make sure you have @expo/vector-icons installed
-import { Colors } from '@/constants/theme'; // Assuming you have this from the old template
+import { Ionicons } from '@expo/vector-icons'; 
+import { Colors } from '@/constants/theme'; 
 
-// Define our colors (you can get these from Figma)
 const TAB_COLORS = {
-  active: '#3A86FF', // Your active blue
+  active: '#3A86FF',
   inactive: '#999999',
-  background: '#0D1B2A', // Your dark blue
+  background: '#0D1B2A', 
 };
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // We will create our own custom header
+        headerShown: false, 
         tabBarActiveTintColor: TAB_COLORS.active,
         tabBarInactiveTintColor: TAB_COLORS.inactive,
         tabBarStyle: {
@@ -29,7 +27,7 @@ export default function TabLayout() {
         },
       }}>
       <Tabs.Screen
-        name="index" // This links to app/(tabs)/index.tsx
+        name="index" 
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
@@ -42,7 +40,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="lessons" // This links to app/(tabs)/lessons.tsx
+        name="lessons" 
         options={{
           title: 'Lessons',
           tabBarIcon: ({ color, focused }) => (
@@ -55,7 +53,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="announcements" // This links to app/(tabs)/announcements.tsx
+        name="announcements" 
         options={{
           title: 'Announcements',
           tabBarIcon: ({ color, focused }) => (

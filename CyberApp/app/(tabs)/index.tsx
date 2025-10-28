@@ -1,4 +1,3 @@
-// app/(tabs)/index.tsx
 import React from 'react';
 import { 
   StyleSheet, 
@@ -11,7 +10,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-// --- Colors ---
 const COLORS = {
   background: '#FFFFFF',
   darkBlue: '#0D1B2A',
@@ -21,9 +19,7 @@ const COLORS = {
   textLight: '#999',
   cardBackground: '#F4F5F7',
 };
-// --- ---
 
-// --- 1. Custom Header Component ---
 const CustomHeader = () => {
   return (
     <View style={styles.headerContainer}>
@@ -85,7 +81,6 @@ const goToLessons = () => {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

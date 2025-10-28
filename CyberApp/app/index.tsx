@@ -1,4 +1,3 @@
-// app/index.tsx
 import React, { useState } from 'react';
 import { 
   StyleSheet, 
@@ -13,17 +12,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 
-// --- Colors ---
 const COLORS = {
   background: '#FFFFFF',
-  darkBlue: '#0D1B2A',     // The form background
-  inputBlue: '#1B263B',     // The input field background
-  activeBlue: '#3A86FF',    // The active tab and button blue
+  darkBlue: '#0D1B2A',
+  inputBlue: '#1B263B',
+  activeBlue: '#3A86FF',
   textLight: '#E0E1DD',
   textDark: '#000000',
   textWhite: '#FFFFFF',
 };
-// --- ---
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('TIPQC@tip.edu.ph');
@@ -34,9 +31,7 @@ export default function LoginScreen() {
   const onSignInPressed = () => {
     console.log('Email:', email, 'Password:', password);
     
-    // On success, navigate to the "home" screen
-    // We replace the login screen so the user can't go "back" to it
-    router.replace('/(tabs)'); // <-- UPDATED
+    router.replace('/(tabs)'); 
   };
   
   const onForgotPasswordPressed = () => {
@@ -46,13 +41,11 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
-      {/* Hide the header for this screen */}
       <Stack.Screen options={{ headerShown: false }} /> 
       
       <View style={styles.logoContainer}>
-        {/* Make sure your logo is in 'assets/images/your-logo.png' */}
         <Image
-          source={require('@/assets/images/logo.png')} // <-- REPLACE THIS
+          source={require('@/assets/images/logo.png')}
           style={styles.logo}
         />
         <Text style={styles.logoText}>CYBERSAFE</Text>
@@ -61,7 +54,6 @@ export default function LoginScreen() {
         </Text>
       </View>
 
-      {/* --- Login / Sign Up Toggle --- */}
       <View style={styles.toggleContainer}>
         <Pressable
           style={[
@@ -113,7 +105,7 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           placeholder="Enter your password"
           placeholderTextColor="#999"
-          secureTextEntry // Hides the password
+          secureTextEntry 
         />
 
         <Pressable style={styles.signInButton} onPress={onSignInPressed}>
@@ -128,7 +120,6 @@ export default function LoginScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -185,9 +176,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 20,
     padding: 24,
-    marginTop: -20, // Pulls the form up to overlap the toggle
-    zIndex: -1,     // Sits behind the toggle
-    paddingTop: 40, // Add padding to account for the overlap
+    marginTop: -20, 
+    zIndex: -1,     
+    paddingTop: 40, 
   },
   label: {
     color: COLORS.textWhite,

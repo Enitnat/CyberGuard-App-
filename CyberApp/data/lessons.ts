@@ -120,3 +120,140 @@ export const lessons: Lesson[] = [
     ],
   },
 ];
+
+// data/lessons.ts
+// ... (keep all your existing code)
+
+// --- NEW DATA FOR LESSON DETAIL SCREEN ---
+
+export type SubTopic = {
+  id: string;
+  title: string;
+  // We can add a 'completed' field later
+};
+
+export type LessonModule = {
+  moduleId: string;
+  title: string;
+  subTopics: SubTopic[];
+};
+
+export type LessonDetail = {
+  id: string; // This should match the lesson ID (e.g., '1' for Phishing)
+  title: string; // The main lesson title
+  modules: LessonModule[];
+};
+
+export const lessonDetails: LessonDetail[] = [
+  // --- LESSON 1: PHISHING ---
+  {
+    id: '1',
+    title: 'Phishing Awareness',
+    modules: [
+      {
+        moduleId: '1.1',
+        title: 'The Importance of Phishing Awareness',
+        subTopics: [
+          { id: '1.1.1', title: 'What is Phishing?' },
+          { id: '1.1.2', title: 'Why attackers use Phishing' },
+          { id: '1.1.3', title: 'Common goals of an attack' },
+          { id: '1.1.4', title: 'Real-world impact' },
+        ],
+      },
+      {
+        moduleId: '1.2',
+        title: 'Types of Phishing Attacks',
+        subTopics: [
+          { id: '1.2.1', title: 'Email Phishing (Vishing)' },
+          { id: '1.2.2', title: 'SMS Phishing (Smishing)' },
+          { id: '1.2.3', title: 'Voice Phishing' },
+          { id: '1.2.4', title: 'Spear Phishing' },
+        ],
+      },
+    ],
+  },
+  
+  // --- LESSON 2: STRONG PASSWORDS ---
+  {
+    id: '2',
+    title: 'Strong Passwords',
+    modules: [
+      {
+        moduleId: '2.1',
+        title: 'Why Passwords Matter',
+        subTopics: [
+          { id: '2.1.1', title: 'Passwords as a first defense' },
+          { id: '2.1.2', title: 'How attackers crack passwords' },
+          { id: '2.1.3', title: 'The risk of reusing passwords' },
+        ],
+      },
+      {
+        moduleId: '2.2',
+        title: 'Creating & Managing Passwords',
+        subTopics: [
+          { id: '2.2.1', title: 'Using passphrases' },
+          { id: '2.2.2', title: 'Introduction to Password Managers' },
+          { id: '2.2.3', title: 'Why length is better than complexity' },
+        ],
+      },
+    ],
+  },
+
+  // --- LESSON 3: MFA ---
+  {
+    id: '3',
+    title: 'Multi-Factor Authentication',
+    modules: [
+      {
+        moduleId: '3.1',
+        title: 'What is MFA?',
+        subTopics: [
+          { id: '3.1.1', title: 'Defining Multi-Factor' },
+          { id: '3.1.2', title: 'The 3 Factors of Authentication' },
+          { id: '3.1.3', title: 'Why passwords are not enough' },
+        ],
+      },
+      {
+        moduleId: '3.2',
+        title: 'Types of MFA',
+        subTopics: [
+          { id: '3.2.1', title: 'Authenticator Apps' },
+          { id: '3.2.2', title: 'SMS & Email Codes' },
+          { id: '3.2.3', title: 'Physical Keys (YubiKey)' },
+          { id: '3.2.4', title: 'Biometrics (Face/Fingerprint)' },
+        ],
+      },
+    ],
+  },
+];
+
+// data/lessons.ts
+// ... (keep all your other code)
+
+// --- NEW DATA FOR TOPIC CONTENT ---
+
+export const topicContent = new Map<string, { title: string, content: string }>([
+  // --- Phishing Lesson ---
+  ['1.1.1', {
+    title: 'What is Phishing?',
+    content: 'Phishing is a type of cybercrime where an attacker attempts to trick a victim into revealing sensitive information. This can include usernames, passwords, credit card numbers, or other personal data.'
+  }],
+  ['1.1.2', {
+    title: 'Why attackers use Phishing',
+    content: 'Attackers use phishing because it is a simple, cheap, and effective way to steal data. It exploits human psychology—like trust, fear, and urgency—rather than complex software vulnerabilities.'
+  }],
+  ['1.1.3', {
+    title: 'Common goals of an attack',
+    content: 'The primary goals are often: \n1. Stealing money via credit card or bank details. \n2. Gaining access to private accounts (email, social media). \n3. Stealing a person\'s identity. \n4. Installing malware, like ransomware, on a victim\'s computer.'
+  }],
+  
+  // --- Password Lesson ---
+  ['2.1.1', {
+    title: 'Passwords as a first defense',
+    content: 'Think of your password as the main lock on your digital front door. It is the first and most common barrier protecting your personal information, files, and identity from unauthorized access.'
+  }],
+  ['2.1.2', {
+    title: 'How attackers crack passwords',
+    content: 'Attackers use automated software to try millions of password combinations per second (a "brute force" attack). They also use "dictionary attacks" that try common words, or "credential stuffing" where they use passwords stolen from other websites.'
+  }],
+]);

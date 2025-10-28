@@ -1,4 +1,3 @@
-// app/(tabs)/announcements.tsx
 import React from 'react';
 import { 
   StyleSheet, 
@@ -11,7 +10,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-// --- Colors (get these from Figma) ---
 const COLORS = {
   background: '#FFFFFF',
   textDark: '#000000',
@@ -20,7 +18,6 @@ const COLORS = {
   icon: '#0D1B2A',
 };
 
-// --- Mock Data (for the list) ---
 const announcements = [
   { id: '1', label: 'New Lesson Available', description: 'Phishing 2.0 is now live!' },
   { id: '2', label: 'Security Alert', description: 'A new system-wide vulnerability was found...' },
@@ -29,7 +26,6 @@ const announcements = [
   { id: '5', label: 'Tip of the Week', description: 'Remember to update your passwords.' },
 ];
 
-// --- Single Announcement Item Component ---
 type ItemProps = {
   label: string;
   description: string;
@@ -47,23 +43,19 @@ const AnnouncementItem = ({ label, description, onPress }: ItemProps) => (
   </Pressable>
 );
 
-// --- Main Announcements Screen ---
 export default function AnnouncementsScreen() {
   const router = useRouter();
 
   const openAnnouncement = (id: string) => {
     console.log('Opening announcement:', id);
-    // You could navigate to a detail screen here
-    // e.g., router.push(`/announcement/${id}`);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Custom Header from your design */}
       <Stack.Screen 
         options={{
           headerShown: true,
-          title: 'Announcement', // This should probably be "Announcements"
+          title: 'Announcement', 
           headerTitleStyle: {
             fontSize: 22,
             fontWeight: 'bold',
@@ -95,7 +87,6 @@ export default function AnnouncementsScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -119,7 +110,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   textContainer: {
-    flex: 1, // Takes up remaining space
+    flex: 1, 
   },
   itemLabel: {
     fontSize: 16,

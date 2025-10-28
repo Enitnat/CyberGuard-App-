@@ -1,4 +1,3 @@
-// app/(tabs)/lessons.tsx
 import React from 'react';
 import { 
   StyleSheet, 
@@ -11,7 +10,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-// --- Colors (get these from Figma) ---
 const COLORS = {
   background: '#FFFFFF',
   textDark: '#000000',
@@ -20,7 +18,6 @@ const COLORS = {
   activePage: '#0D1B2A',
 };
 
-// --- Mock Data (for the grid) ---
 const lessonData = [
   { id: '1', title: 'Lesson 1', updated: 'Updated today' },
   { id: '2', title: 'Lesson 2', updated: 'Updated today' },
@@ -33,7 +30,6 @@ const lessonData = [
   { id: '9', title: 'Lesson 9', updated: 'Updated 2 days ago' },
 ];
 
-// --- Single Lesson Item Component ---
 type LessonItemProps = {
   title: string;
   updated: string;
@@ -50,7 +46,6 @@ const LessonItem = ({ title, updated, onPress }: LessonItemProps) => (
   </Pressable>
 );
 
-// --- Pagination Component ---
 const Pagination = () => (
   <View style={styles.paginationContainer}>
     <Pressable style={[styles.pageButton, styles.pageButtonActive]}>
@@ -72,20 +67,20 @@ const Pagination = () => (
   </View>
 );
 
-// --- Main Lessons Screen ---
 export default function LessonsScreen() {
   const router = useRouter();
 
-  const openLesson = (lessonId: string) => {
-    // This is where we will go to the lesson detail screen
-    // We'll add this file next
-    console.log('Opening lesson:', lessonId);
-    // router.push(`/lesson/${lessonId}`); 
-  };
+const openLesson = (lessonId: string) => {
+  console.log('Opening lesson:', lessonId);
+
+  router.push({
+    pathname: '/lesson/[id]',  
+    params: { id: lessonId },  
+  });
+};
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Custom Header from your design */}
       <Stack.Screen 
         options={{
           headerShown: true,
@@ -112,15 +107,14 @@ export default function LessonsScreen() {
           />
         )}
         keyExtractor={item => item.id}
-        numColumns={3} // This creates the 3-column grid
+        numColumns={3} 
         contentContainerStyle={styles.listContainer}
-        ListFooterComponent={<Pagination />} // Adds the page numbers at the bottom
+        ListFooterComponent={<Pagination />} 
       />
     </SafeAreaView>
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -130,8 +124,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   itemContainer: {
-    flex: 1, // Makes each item share space equally
-    maxWidth: '33.33%', // Ensures 3 columns
+    flex: 1, 
+    maxWidth: '33.33%', 
     alignItems: 'center',
     padding: 8,
   },
@@ -139,7 +133,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardBackground,
     borderRadius: 10,
     width: '100%',
-    aspectRatio: 1, // Makes it a perfect square
+    aspectRatio: 1, 
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
