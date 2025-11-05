@@ -63,6 +63,9 @@ export const lessons: Lesson[] = [
       },
     ],
   },
+
+  /* 67 */
+  
   {
     id: '2',
     title: 'Strong Passwords',
