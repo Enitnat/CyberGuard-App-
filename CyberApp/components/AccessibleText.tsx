@@ -11,8 +11,22 @@ interface AccessibleTextProps extends TextProps {
 }
 
 export function AccessibleText({ children, style, showSpeakButton = true, ...props }: AccessibleTextProps) {
+  
+  // --- THIS IS THE FIX ---
+  // 1. All hook calls MUST be at the top, before any conditions or returns.
   const { isDyslexicFont, fontSizeMultiplier, theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
+  // --- END OF FIX ---
+
+  // 2. Convert children to a simple string to check it
+  const stringContent = React.Children.toArray(children).join(' ');
+
+  // 3. Now we can have an early return
+  if (!stringContent || stringContent.trim() === '') {
+    return null;
+  }
+
+  // --- (Rest of the component logic) ---
   const flatStyle = StyleSheet.flatten(style);
   const baseFontSize = flatStyle?.fontSize || 16;
   const isBold = flatStyle?.fontWeight === 'bold';
@@ -22,11 +36,10 @@ export function AccessibleText({ children, style, showSpeakButton = true, ...pro
     fontWeight: isDyslexicFont ? 'normal' : (isBold ? 'bold' : 'normal'),
     fontSize: baseFontSize * fontSizeMultiplier,
     lineHeight: (baseFontSize * fontSizeMultiplier) * 1.5,
-    color: currentTheme.text,
+    color: flatStyle?.color ? flatStyle.color : currentTheme.text,
   };
 
   const speak = () => {
-    const stringContent = React.Children.toArray(children).join(' ');
     Speech.stop();
     Speech.speak(stringContent, { language: 'en-US' });
   };
@@ -34,14 +47,18 @@ export function AccessibleText({ children, style, showSpeakButton = true, ...pro
   return (
     <View style={styles.container}>
       <Text 
-        style={[styles.text, style, fontStyle]} // <-- Style order fixed
+        style={[
+          styles.text,
+          style,
+          fontStyle
+        ]} 
         {...props}
       >
         {children}
       </Text>
       {showSpeakButton && (
         <Pressable onPress={speak} style={styles.speakButton}>
-          <Ionicons name="volume-medium-outline" size={20} color={currentTheme.text} />
+          <Ionicons name="volume-medium-outline" size={20} color={fontStyle.color} />
         </Pressable>
       )}
     </View>
@@ -52,11 +69,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    // width: '100%', <-- THIS WAS THE BUG. IT IS NOW REMOVED.
+    justifyContent: 'space-between',
   },
   text: {
-    flex: 1, // Allow text to wrap
     paddingRight: 10,
+    flexShrink: 1, // Allows text to wrap
   },
   speakButton: {
     padding: 5,

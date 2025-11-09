@@ -114,14 +114,16 @@ export default function MyTicketDetailScreen() {
           </View>
         }
         renderItem={({ item }) => (
-          // Check if the reply user_id matches the logged-in user's ID
           <View style={[
             styles.reply, 
             item.user_id === profile?.id ? styles.myReply : styles.theirReply
           ]}>
+            {/* --- THIS IS THE FIX --- */}
+            {/* We must manually set the color here to override the theme */}
             <AccessibleText style={item.user_id === profile?.id ? {color: '#FFFFFF'} : {color: '#000000'}}>
               {item.message}
             </AccessibleText>
+            {/* --- END OF FIX --- */}
           </View>
         )}
         contentContainerStyle={styles.listContainer}
@@ -157,11 +159,11 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   myReply: {
-    backgroundColor: '#3A86FF',
+    backgroundColor: '#3A86FF', // Blue background
     alignSelf: 'flex-end',
   },
   theirReply: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#E0E0E0', // Light grey background
     alignSelf: 'flex-start',
   },
 });
