@@ -83,6 +83,16 @@ export default function HomeScreen() {
           </AccessibleText>
         </View> 
 
+        <Pressable 
+          style={[styles.reportButton, { backgroundColor: currentTheme.card, borderColor: '#FF5A5A' }]} 
+          onPress={() => router.push('/report')}
+        >
+          <Ionicons name="warning-outline" size={24} color="#FF5A5A" />
+          <AccessibleText style={[styles.reportButtonText, { color: '#FF5A5A' }]} showSpeakButton={false}>
+            Report an Incident
+          </AccessibleText>
+        </Pressable>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -175,5 +185,19 @@ const styles = StyleSheet.create({
   tipBody: {
     fontSize: 16,
     lineHeight: 22,
+  },
+  reportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 18,
+    borderRadius: 15,
+    marginTop: 20,
+    borderWidth: 2,
+    gap: 10,
+  },
+  reportButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

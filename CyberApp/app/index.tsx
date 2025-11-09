@@ -1,5 +1,5 @@
 // app/index.tsx
-import React, { useState, useEffect } from 'react'; // <-- ADD useEffect
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -9,15 +9,16 @@ import {
   Pressable, 
   StatusBar,
   Alert,
-  KeyboardAvoidingView, // <-- ADD THIS
-  ScrollView,           // <-- ADD THIS
-  Platform              // <-- ADD THIS
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
 import { AccessibleText } from '@/components/AccessibleText';
 import { supabase } from '@/lib'; 
+import { useAuthStore } from '@/stores/authStore'; // <-- IMPORT AUTH STORE
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -28,14 +29,12 @@ export default function LoginScreen() {
   const router = useRouter();
   const { theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
+  const fetchUserProfile = useAuthStore((state) => state.fetchUserProfile); // <-- GET AUTH FUNCTION
 
-  // --- FIX #3: CLEAR FIELDS ON SWAP ---
   useEffect(() => {
-    // This runs every time the 'mode' (Login/Signup) changes
     setEmail('');
     setPassword('');
   }, [mode]);
-  // --- END FIX ---
 
   const handleSignUp = async () => {
     setLoading(true);
@@ -54,15 +53,20 @@ export default function LoginScreen() {
 
   const handleSignIn = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
 
     if (error) {
       Alert.alert('Login Error', error.message);
-    } else {
+    } else if (data.session) {
+      // --- THIS IS THE NEW PART ---
+      // 1. Fetch the user's role and profile
+      await fetchUserProfile(data.session);
+      // 2. Now that the role is in the store, go to the app
       router.replace('/(tabs)');
+      // --- END NEW PART ---
     }
     setLoading(false);
   };
@@ -76,7 +80,6 @@ export default function LoginScreen() {
       <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
       <Stack.Screen options={{ headerShown: false }} /> 
       
-      {/* --- FIX #4: KEYBOARD BLOCKING --- */}
       <KeyboardAvoidingView 
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -156,13 +159,11 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      {/* --- END FIX #4 --- */}
     </SafeAreaView>
   );
 }
 
 // --- Styles ---
-// FIX #1: The 'textAlign: 'center'' is already in logoText and logoSubtitle
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -181,11 +182,11 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center', // <-- FIX #1
+    textAlign: 'center',
   },
   logoSubtitle: {
     fontSize: 10,
-    textAlign: 'center', // <-- FIX #1
+    textAlign: 'center',
     paddingHorizontal: 40,
     marginTop: 5,
   },
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
     marginTop: -20,
     zIndex: -1,
     paddingTop: 40,
-    paddingBottom: 24, // Added padding for scrollview
+    paddingBottom: 24,
   },
   label: {
     fontSize: 16,

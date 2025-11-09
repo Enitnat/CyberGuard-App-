@@ -6,8 +6,8 @@ import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
 import { AccessibleText } from '@/components/AccessibleText';
-import { supabase } from '@/lib';
-import { useLessonStore } from '@/stores/lessonStore'; // <-- IMPORT LESSON STORE
+import { useLessonStore } from '@/stores/lessonStore';
+import { useAuthStore } from '@/stores/authStore'; 
 
 // Reusable Settings Row Component
 const SettingRow = ({ label, children }: { label: string, children: React.ReactNode }) => {
@@ -36,25 +36,17 @@ export default function SettingsModal() {
     toggleDyslexiaTheme,
   } = useAccessibilityStore();
 
+  const { profile, signOut } = useAuthStore(); 
   const clearLessonProgress = useLessonStore((state) => state.clearProgress);
-
+ 
   const currentTheme = themes[theme];
   const isDyslexiaTheme = theme === 'dyslexiaFriendly';
 
-
   const handleLogout = async () => {
-  clearLessonProgress();
-
-  const { error } = await supabase.auth.signOut();
-  
-  if (error) {
-    Alert.alert('Error logging out', error.message);
-    return;
-  }
-
-  // 3. Redirect to login
-  router.replace('/');
-};
+    clearLessonProgress();
+    await signOut(); 
+    router.replace('/'); 
+  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
@@ -115,7 +107,20 @@ export default function SettingsModal() {
           </Pressable>
         </View>
         
+        {/* --- 1. "MY TICKETS" BUTTON ADDED --- */}
         <View style={{marginTop: 40}}>
+          <Button title="My Submitted Tickets" onPress={() => router.push('/my-tickets')} />
+        </View>
+        
+        {/* --- 2. ADMIN BUTTON (Conditional) --- */}
+        {profile?.role === 'admin' && (
+          <View style={{marginTop: 20}}>
+            <Button title="Admin Dashboard" onPress={() => router.push('/admin')} />
+          </View>
+        )}
+        
+        {/* --- 3. LOGOUT BUTTON --- */}
+        <View style={{marginTop: 20}}>
           <Button title="Log Out" onPress={handleLogout} color="red" />
         </View>
 
