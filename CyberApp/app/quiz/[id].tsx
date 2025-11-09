@@ -1,22 +1,24 @@
+// app/quiz/[id].tsx
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Button, Alert, Image } from 'react-native';
+import { ScrollView, StyleSheet, Button, Alert, Image, View, Pressable } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Question, lessons } from '@/data/lessons'; 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Question, lessons } from '@/data/lessons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
+import { AccessibleText } from '@/components/AccessibleText'; // <-- IMPORT
+import { Ionicons } from '@expo/vector-icons';
 
 type QuestionProps = {
   question: Question;
   onAnswer: (isCorrect: boolean) => void;
 };
 
+// --- Question Component (Refactored) ---
 const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
-  const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? 'light'];
+  const { theme } = useAccessibilityStore();
+  const currentTheme = themes[theme];
 
   const checkAnswer = () => {
     if (selectedOption === null) {
@@ -35,7 +37,7 @@ const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
 
   const getOptionStyle = (option: string) => {
     if (!answered) {
-      return styles.optionButton;
+      return [styles.optionButton, { borderColor: currentTheme.border, backgroundColor: currentTheme.card }];
     }
     if (option === question.correctAnswer) {
       return [styles.optionButton, styles.correctOption];
@@ -43,69 +45,62 @@ const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
     if (option === selectedOption && option !== question.correctAnswer) {
       return [styles.optionButton, styles.wrongOption];
     }
-    return styles.optionButton;
+    return [styles.optionButton, { borderColor: currentTheme.border, backgroundColor: currentTheme.card }];
   };
 
   return (
-    <ThemedView style={styles.questionContainer}>
-      <ThemedText type="subtitle" style={styles.questionText}>
-        {question.questionText}
-      </ThemedText>
+    <View style={[styles.questionContainer, { backgroundColor: currentTheme.bg }]}>
+      <AccessibleText style={styles.questionText}>{question.questionText}</AccessibleText>
 
       {question.image && (
         <Image source={{ uri: question.image }} style={styles.questionImage} />
       )}
 
       {question.options?.map((option, index) => (
-        <ThemedView
+        <Pressable
           key={index}
           style={[
             getOptionStyle(option),
             selectedOption === option && !answered && {
-              borderColor: themeColors.tint,
+              borderColor: '#3A86FF',
               borderWidth: 2,
             },
           ]}
+          onPress={() => !answered && setSelectedOption(option)}
         >
-          <Button
-            title={option}
-            onPress={() => !answered && setSelectedOption(option)}
-            color={
-                answered
-                ? (option === question.correctAnswer ? 'green' : (option === selectedOption ? 'red' : themeColors.text))
-                : themeColors.text
-            }
-          />
-        </ThemedView>
+          <AccessibleText style={styles.optionText}>{option}</AccessibleText>
+        </Pressable>
       ))}
 
       {!answered && (
-        <ThemedView style={[styles.actionButtonContainer, { backgroundColor: themeColors.tint }]}>
-          <Button 
-            title="Check Answer" 
-            onPress={checkAnswer} 
-            color="#FFFFFF"
-            disabled={selectedOption === null}
-          />
-        </ThemedView>
+        <Pressable 
+          style={[styles.actionButton, { backgroundColor: '#3A86FF' }]} 
+          onPress={checkAnswer} 
+          disabled={selectedOption === null}
+        >
+          <AccessibleText style={styles.actionButtonText} showSpeakButton={false}>Check Answer</AccessibleText>
+        </Pressable>
       )}
 
       {answered && (
-        <ThemedView style={styles.explanationContainer}>
-          <ThemedText type="defaultSemiBold" style={{color: selectedOption === question.correctAnswer ? 'green' : 'red'}}>
+        <View style={[styles.explanationContainer, { borderColor: currentTheme.border, backgroundColor: currentTheme.card }]}>
+          <AccessibleText style={{ color: selectedOption === question.correctAnswer ? 'green' : 'red', fontWeight: 'bold' }}>
             {selectedOption === question.correctAnswer ? 'Correct!' : 'Not quite...'}
-          </ThemedText>
-          <ThemedText>{question.explanation}</ThemedText>
-        </ThemedView>
+          </AccessibleText>
+          <AccessibleText>{question.explanation}</AccessibleText>
+        </View>
       )}
-    </ThemedView>
+    </View>
   );
 };
 
+// --- Main Quiz Screen (Refactored) ---
 export default function QuizScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const lesson = lessons.find(l => l.id === id); 
+  const lesson = lessons.find(l => l.id === id);
+  const { theme, isDyslexicFont } = useAccessibilityStore();
+  const currentTheme = themes[theme];
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -113,16 +108,14 @@ export default function QuizScreen() {
 
   if (!lesson) {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText>Quiz not found!</ThemedText>
-      </ThemedView>
+      <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.bg }]}>
+        <AccessibleText>Quiz not found!</AccessibleText>
+      </SafeAreaView>
     );
   }
 
   const handleAnswer = (isCorrect: boolean) => {
-    if (isCorrect) {
-      setScore(prev => prev + 1);
-    }
+    if (isCorrect) setScore(prev => prev + 1);
     if (currentQuestionIndex < lesson.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
@@ -133,59 +126,58 @@ export default function QuizScreen() {
   const currentQuestion = lesson.questions[currentQuestionIndex];
 
   return (
-    <ThemedView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.bg }]}>
       <Stack.Screen options={{
         title: `${lesson.title} Quiz`,
         headerShown: true,
+        headerStyle: { backgroundColor: currentTheme.card },
+        headerTitleStyle: { color: currentTheme.text, fontFamily: isDyslexicFont ? 'Lexend_700Bold' : undefined },
+        headerLeft: () => (
+          <Pressable onPress={() => router.back()} style={{ marginLeft: 10 }}>
+            <Ionicons name="arrow-back" size={28} color={currentTheme.text} />
+          </Pressable>
+        ),
       }} />
 
-   <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         {!lessonCompleted ? (
           <QuestionComponent question={currentQuestion} onAnswer={handleAnswer} />
         ) : (
-          <ThemedView style={styles.completionContainer}>
-            
-            {/* 1. Fixed closing tag */}
-            <ThemedText type="title">Quiz Completed!</ThemedText> 
-            
-            {/* 2. Fixed component name */}
-            <ThemedText>Your Score: {score} / {lesson.questions.length}</ThemedText> 
-            
-            <ThemedView style={[styles.actionButtonContainer, { backgroundColor: Colors.light.tint, width: '100%' }]}>
-              <Button 
-                title="Back to Lessons" 
-                onPress={() => router.back()} 
-                color="#FFFFFF"
-              />
-            </ThemedView>
-          </ThemedView>
+          <View style={styles.completionContainer}>
+            <AccessibleText style={styles.title}>Quiz Completed!</AccessibleText>
+            <AccessibleText style={styles.subtitle}>Your Score: {score} / {lesson.questions.length}</AccessibleText>
+            <Pressable 
+              style={[styles.actionButton, { backgroundColor: '#3A86FF', width: '100%' }]}
+              onPress={() => router.back()} 
+            >
+              <AccessibleText style={styles.actionButtonText} showSpeakButton={false}>Back to Lessons</AccessibleText>
+            </Pressable>
+          </View>
         )}
       </ScrollView>
-    </ThemedView>
+    </SafeAreaView>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 10,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
   },
   questionContainer: {
     width: '100%',
-    maxWidth: 600,
     padding: 20,
     borderRadius: 10,
     gap: 15,
   },
   questionText: {
     fontSize: 20,
-    marginBottom: 10,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
   questionImage: {
@@ -195,23 +187,32 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   optionButton: {
-    padding: 10,
+    padding: 15,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
   },
-  actionButtonContainer: {
+  optionText: {
+    fontSize: 16,
+  },
+  actionButton: {
     borderRadius: 8,
-    padding: 5,
+    padding: 15,
     marginTop: 20,
-    overflow: 'hidden',
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   correctOption: {
     borderColor: 'green',
+    backgroundColor: '#e0ffe0',
     borderWidth: 2,
   },
   wrongOption: {
     borderColor: 'red',
+    backgroundColor: '#ffe0e0',
     borderWidth: 2,
   },
   explanationContainer: {
@@ -219,7 +220,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#eee',
     gap: 5,
   },
   completionContainer: {
@@ -227,5 +227,12 @@ const styles = StyleSheet.create({
     gap: 20,
     padding: 20,
     width: '100%',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: 18,
   }
 });

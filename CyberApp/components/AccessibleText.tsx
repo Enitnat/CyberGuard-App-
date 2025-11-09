@@ -5,49 +5,36 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
 
-// Extend default TextProps to accept 'children' and 'style'
 interface AccessibleTextProps extends TextProps {
   children: React.ReactNode;
-  showSpeakButton?: boolean; // Option to show/hide the speak button
+  showSpeakButton?: boolean;
 }
 
 export function AccessibleText({ children, style, showSpeakButton = true, ...props }: AccessibleTextProps) {
-  // 1. Get global settings from our store
   const { isDyslexicFont, fontSizeMultiplier, theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
+  const flatStyle = StyleSheet.flatten(style);
+  const baseFontSize = flatStyle?.fontSize || 16;
+  const isBold = flatStyle?.fontWeight === 'bold';
 
-  // --- THIS IS THE CORRECTED LOGIC ---
-
-  // 2. Check if the incoming style is bold
-  const isBold = StyleSheet.flatten(style)?.fontWeight === 'bold';
-
-  // 3. Determine the correct style
   const fontStyle: TextStyle = {
-    fontFamily: isDyslexicFont 
-      ? (isBold ? 'Lexend_700Bold' : 'Lexend_400Regular') 
-      : undefined,
-    fontWeight: isDyslexicFont 
-      ? 'normal' // We use 'normal' because the font file itself is already bold
-      : (isBold ? 'bold' : 'normal'), // Use default system bolding
-    fontSize: (StyleSheet.flatten(style)?.fontSize || 16) * fontSizeMultiplier,
-    lineHeight: (StyleSheet.flatten(style)?.fontSize || 16) * fontSizeMultiplier * 1.5,
-    color: currentTheme.text, // Apply theme text color
+    fontFamily: isDyslexicFont ? (isBold ? 'Lexend_700Bold' : 'Lexend_400Regular') : undefined,
+    fontWeight: isDyslexicFont ? 'normal' : (isBold ? 'bold' : 'normal'),
+    fontSize: baseFontSize * fontSizeMultiplier,
+    lineHeight: (baseFontSize * fontSizeMultiplier) * 1.5,
+    color: currentTheme.text,
   };
-  // --- END OF FIX ---
 
   const speak = () => {
-    // We only want to speak plain string content
     const stringContent = React.Children.toArray(children).join(' ');
-    Speech.stop(); // Stop any previous speech
-    Speech.speak(stringContent, {
-      language: 'en-US',
-    });
+    Speech.stop();
+    Speech.speak(stringContent, { language: 'en-US' });
   };
 
   return (
     <View style={styles.container}>
       <Text 
-        style={[styles.text, fontStyle, style]} 
+        style={[styles.text, style, fontStyle]} // <-- Style order fixed
         {...props}
       >
         {children}
@@ -65,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    // width: '100%', <-- THIS WAS THE BUG. IT IS NOW REMOVED.
   },
   text: {
     flex: 1, // Allow text to wrap

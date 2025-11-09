@@ -1,11 +1,13 @@
 // app/settings.tsx
 import React from 'react';
-import { View, StyleSheet, Pressable, Switch } from 'react-native';
+import { View, StyleSheet, Pressable, Switch, Button, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
-import { AccessibleText } from '@/components/AccessibleText'; // We use our new component
+import { AccessibleText } from '@/components/AccessibleText';
+import { supabase } from '@/lib';
+import { useLessonStore } from '@/stores/lessonStore'; // <-- IMPORT LESSON STORE
 
 // Reusable Settings Row Component
 const SettingRow = ({ label, children }: { label: string, children: React.ReactNode }) => {
@@ -13,7 +15,9 @@ const SettingRow = ({ label, children }: { label: string, children: React.ReactN
   const currentTheme = themes[theme];
   return (
     <View style={[styles.row, { borderBottomColor: currentTheme.border }]}>
-      <AccessibleText style={styles.rowLabel} showSpeakButton={false}>{label}</AccessibleText>
+      <View style={styles.labelContainer}>
+        <AccessibleText style={styles.rowLabel} showSpeakButton={false}>{label}</AccessibleText>
+      </View>
       {children}
     </View>
   );
@@ -32,12 +36,28 @@ export default function SettingsModal() {
     toggleDyslexiaTheme,
   } = useAccessibilityStore();
 
+  const clearLessonProgress = useLessonStore((state) => state.clearProgress);
+
   const currentTheme = themes[theme];
   const isDyslexiaTheme = theme === 'dyslexiaFriendly';
 
+
+  const handleLogout = async () => {
+  clearLessonProgress();
+
+  const { error } = await supabase.auth.signOut();
+  
+  if (error) {
+    Alert.alert('Error logging out', error.message);
+    return;
+  }
+
+  // 3. Redirect to login
+  router.replace('/');
+};
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
-      {/* 1. Configure the Header */}
       <Stack.Screen 
         options={{
           headerShown: true,
@@ -51,7 +71,6 @@ export default function SettingsModal() {
           ),
         }}
       />
-      {/* 2. Add the Settings Controls */}
       <View style={styles.container}>
         <SettingRow label="Dark Mode">
           <Switch
@@ -71,11 +90,10 @@ export default function SettingsModal() {
           <Switch
             value={isDyslexiaTheme}
             onValueChange={toggleDyslexiaTheme}
-            disabled={isDarkMode} // Disable if dark mode is on
+            disabled={isDarkMode}
           />
         </SettingRow>
 
-        {/* 3. Add Font Size Controls */}
         <View style={styles.row}>
           <AccessibleText style={styles.rowLabel} showSpeakButton={false}>Font Size</AccessibleText>
         </View>
@@ -96,17 +114,23 @@ export default function SettingsModal() {
             <AccessibleText style={styles.fontButtonText} showSpeakButton={false}>Large</AccessibleText>
           </Pressable>
         </View>
+        
+        <View style={{marginTop: 40}}>
+          <Button title="Log Out" onPress={handleLogout} color="red" />
+        </View>
+
       </View>
     </SafeAreaView>
   );
 }
 
-// 4. Add Styles
+// Styles
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
   container: {
+    flex: 1,
     padding: 20,
     gap: 15,
   },
@@ -116,6 +140,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
+  },
+  labelContainer: {
+    flex: 1,
+    paddingRight: 10,
   },
   rowLabel: {
     fontSize: 18,
@@ -133,7 +161,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   fontButtonActive: {
-    backgroundColor: '#3A86FF', // Active blue color
+    backgroundColor: '#3A86FF',
   },
   fontButtonText: {
     fontSize: 16,

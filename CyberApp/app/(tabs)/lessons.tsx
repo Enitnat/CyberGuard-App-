@@ -1,23 +1,18 @@
+// app/(tabs)/lessons.tsx
 import React from 'react';
 import { 
   StyleSheet, 
   View, 
-  Text, 
   FlatList, 
   Pressable 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
+import { AccessibleText } from '@/components/AccessibleText';
 
-const COLORS = {
-  background: '#FFFFFF',
-  textDark: '#000000',
-  textLight: '#666666',
-  cardBackground: '#F4F5F7',
-  activePage: '#0D1B2A',
-};
-
+// --- Mock Data (Unchanged) ---
 const lessonData = [
   { id: '1', title: 'Lesson 1', updated: 'Updated today' },
   { id: '2', title: 'Lesson 2', updated: 'Updated today' },
@@ -25,73 +20,85 @@ const lessonData = [
   { id: '4', title: 'Lesson 4', updated: 'Updated today' },
   { id: '5', title: 'Lesson 5', updated: 'Updated yesterday' },
   { id: '6', title: 'Lesson 6', updated: 'Updated 2 days ago' },
-  { id: '7', title: 'Lesson 7', updated: 'Updated today' },
-  { id: '8', title: 'Lesson 8', updated: 'Updated yesterday' },
-  { id: '9', title: 'Lesson 9', updated: 'Updated 2 days ago' },
+  { id: '7', title: 'Lesson 7', updated: 'Updated today' }, // 7th item
+  { id: '8', title: 'Lesson 8', updated: 'Updated yesterday' }, // 8th item
+  { id: '9', title: 'Lesson 9', updated: 'Updated 2 days ago' }, // 9th item
 ];
 
+// --- Single Lesson Item Component ---
 type LessonItemProps = {
   title: string;
   updated: string;
   onPress: () => void;
 };
 
-const LessonItem = ({ title, updated, onPress }: LessonItemProps) => (
-  <Pressable style={styles.itemContainer} onPress={onPress}>
-    <View style={styles.itemIconBackground}>
-      <Ionicons name="book" size={48} color={COLORS.textDark} />
-    </View>
-    <Text style={styles.itemTitle}>{title}</Text>
-    <Text style={styles.itemUpdated}>{updated}</Text>
-  </Pressable>
-);
-
-const Pagination = () => (
-  <View style={styles.paginationContainer}>
-    <Pressable style={[styles.pageButton, styles.pageButtonActive]}>
-      <Text style={[styles.pageText, styles.pageTextActive]}>1</Text>
-    </Pressable>
-    <Pressable style={styles.pageButton}>
-      <Text style={styles.pageText}>2</Text>
-    </Pressable>
-    <Pressable style={styles.pageButton}>
-      <Text style={styles.pageText}>3</Text>
-    </Pressable>
-    <Text style={styles.pageText}>...</Text>
-    <Pressable style={styles.pageButton}>
-      <Text style={styles.pageText}>67</Text>
-    </Pressable>
-    <Pressable style={styles.pageButton}>
-      <Text style={styles.pageText}>68</Text>
-    </Pressable>
-  </View>
-);
-
-export default function LessonsScreen() {
-  const router = useRouter();
-
-const openLesson = (lessonId: string) => {
-  console.log('Opening lesson:', lessonId);
-
-  router.push({
-    pathname: '/lesson/[id]',  
-    params: { id: lessonId },  
-  });
-};
+const LessonItem = ({ title, updated, onPress }: LessonItemProps) => {
+  const { theme } = useAccessibilityStore();
+  const currentTheme = themes[theme];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <Pressable style={styles.itemContainer} onPress={onPress}>
+      <View style={[styles.itemIconBackground, { backgroundColor: currentTheme.card }]}>
+        <Ionicons name="book" size={48} color={currentTheme.text} />
+      </View>
+      <AccessibleText style={styles.itemTitle} showSpeakButton={false}>{title}</AccessibleText>
+      <AccessibleText style={styles.itemUpdated} showSpeakButton={false}>{updated}</AccessibleText>
+    </Pressable>
+  );
+};
+
+// --- Pagination Component ---
+const Pagination = () => {
+  const { theme } = useAccessibilityStore();
+  const currentTheme = themes[theme];
+
+  // This is the full pagination from your original design
+  return (
+    <View style={styles.paginationContainer}>
+      <Pressable style={[styles.pageButton, styles.pageButtonActive]}>
+        <AccessibleText style={[styles.pageText, styles.pageTextActive]} showSpeakButton={false}>1</AccessibleText>
+      </Pressable>
+      <Pressable style={styles.pageButton}>
+        <AccessibleText style={[styles.pageText, { color: currentTheme.text }]} showSpeakButton={false}>2</AccessibleText>
+      </Pressable>
+      <Pressable style={styles.pageButton}>
+        <AccessibleText style={[styles.pageText, { color: currentTheme.text }]} showSpeakButton={false}>3</AccessibleText>
+      </Pressable>
+      <AccessibleText style={[styles.pageText, { color: currentTheme.text }]}>...</AccessibleText>
+      <Pressable style={styles.pageButton}>
+        <AccessibleText style={[styles.pageText, { color: currentTheme.text }]} showSpeakButton={false}>67</AccessibleText>
+      </Pressable>
+      <Pressable style={styles.pageButton}>
+        <AccessibleText style={[styles.pageText, { color: currentTheme.text }]} showSpeakButton={false}>68</AccessibleText>
+      </Pressable>
+    </View>
+  );
+};
+
+// --- Main Lessons Screen ---
+export default function LessonsScreen() {
+  const router = useRouter();
+  const { theme, isDyslexicFont } = useAccessibilityStore();
+  const currentTheme = themes[theme];
+
+  const openLesson = (lessonId: string) => {
+    router.push({
+      pathname: '/lesson/[id]',
+      params: { id: lessonId },
+    });
+  };
+
+  return (
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
       <Stack.Screen 
         options={{
           headerShown: true,
           title: 'Lessons',
-          headerTitleStyle: {
-            fontSize: 22,
-            fontWeight: 'bold',
-          },
+          headerStyle: { backgroundColor: currentTheme.card },
+          headerTitleStyle: { color: currentTheme.text, fontFamily: isDyslexicFont ? 'Lexend_700Bold' : undefined },
           headerLeft: () => (
             <Pressable onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <Ionicons name="arrow-back" size={28} color={COLORS.textDark} />
+              <Ionicons name="arrow-back" size={28} color={currentTheme.text} />
             </Pressable>
           ),
         }} 
@@ -107,33 +114,33 @@ const openLesson = (lessonId: string) => {
           />
         )}
         keyExtractor={item => item.id}
-        numColumns={3} 
+        numColumns={3}
         contentContainerStyle={styles.listContainer}
-        ListFooterComponent={<Pagination />} 
+        ListFooterComponent={<Pagination />}
       />
     </SafeAreaView>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   listContainer: {
     paddingHorizontal: 8,
   },
+  // --- THIS IS THE GRID FIX ---
   itemContainer: {
-    flex: 1, 
-    maxWidth: '33.33%', 
+    width: '33.33%', // Use a fixed width instead of flex
     alignItems: 'center',
     padding: 8,
   },
+  // --- END OF GRID FIX ---
   itemIconBackground: {
-    backgroundColor: COLORS.cardBackground,
     borderRadius: 10,
     width: '100%',
-    aspectRatio: 1, 
+    aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -141,11 +148,9 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   itemUpdated: {
     fontSize: 12,
-    color: COLORS.textLight,
   },
   paginationContainer: {
     flexDirection: 'row',
@@ -158,12 +163,11 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   pageButtonActive: {
-    backgroundColor: COLORS.activePage,
+    backgroundColor: '#0D1B2A',
     borderRadius: 8,
   },
   pageText: {
     fontSize: 16,
-    color: COLORS.textDark,
   },
   pageTextActive: {
     color: '#FFFFFF',

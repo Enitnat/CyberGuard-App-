@@ -2,28 +2,28 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
 
 export default function TabLayout() {
-  const { theme } = useAccessibilityStore();
-  const currentTheme = themes[theme];
+  const { theme } = useAccessibilityStore(); // <-- GET THEME
+  const currentTheme = themes[theme]; // <-- GET COLORS
 
   // Define our colors
   const TAB_COLORS = {
-    active: '#3A86FF', // Your active blue
-    inactive: currentTheme.text, // Use theme text color
-    background: currentTheme.card, // Use theme card color
+    active: '#3A86FF',
+    inactive: currentTheme.text, // <-- USE THEME
+    background: currentTheme.card, // <-- USE THEME
   };
 
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // We use custom headers inside the screens
+        headerShown: false,
         tabBarActiveTintColor: TAB_COLORS.active,
         tabBarInactiveTintColor: TAB_COLORS.inactive,
         tabBarStyle: {
           backgroundColor: TAB_COLORS.background,
-          borderTopColor: currentTheme.border, // Add theme border color
+          borderTopColor: currentTheme.border, // <-- USE THEME
           paddingTop: 10,
         },
         tabBarLabelStyle: {
@@ -32,41 +32,29 @@ export default function TabLayout() {
         },
       }}>
       <Tabs.Screen
-        name="index" // Links to app/(tabs)/index.tsx
+        name="index"
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? 'home' : 'home-outline'} 
-              size={28} 
-              color={color} 
-            />
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={28} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="lessons" // Links to app/(tabs)/lessons.tsx
+        name="lessons"
         options={{
           title: 'Lessons',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? 'book' : 'book-outline'} 
-              size={28} 
-              color={color} 
-            />
+            <Ionicons name={focused ? 'book' : 'book-outline'} size={28} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="announcements" // Links to app/(tabs)/announcements.tsx
+        name="announcements"
         options={{
           title: 'Announcements',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? 'megaphone' : 'megaphone-outline'} 
-              size={28} 
-              color={color} 
-            />
+            <Ionicons name={focused ? 'megaphone' : 'megaphone-outline'} size={28} color={color} />
           ),
         }}
       />

@@ -1,24 +1,20 @@
+// app/lesson/[id].tsx
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { lessonDetails, LessonModule } from '@/data/lessons';
-import { useLessonStore } from '@/stores/lessonStore';
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
+import { AccessibleText } from '@/components/AccessibleText'; // <-- IMPORT
+import { useLessonStore } from '@/stores/lessonStore'; // <-- For completions
 
-const COLORS = {
-  background: '#F4F5F7',
-  card: '#FFFFFF',
-  textDark: '#000000',
-  textLight: '#666666',
-  button: '#3A86FF',
-  buttonText: '#FFFFFF',
-  icon: '#3A86FF',
-};
-
+// --- Sub-Topic Item Component ---
 const SubTopicItem = ({ id, title }: { id: string, title: string }) => {
   const router = useRouter();
   const isComplete = useLessonStore(state => state.isTopicComplete(id));
+  const { theme } = useAccessibilityStore();
+  const currentTheme = themes[theme];
 
   const handlePress = () => {
     router.push({
@@ -30,70 +26,75 @@ const SubTopicItem = ({ id, title }: { id: string, title: string }) => {
   return (
     <Pressable style={styles.subTopicRow} onPress={handlePress}>
       <View style={styles.subTopicText}>
-        <Text style={styles.subTopicId}>{id}</Text>
-        <Text style={styles.subTopicTitle}>{title}</Text>
+        <AccessibleText style={styles.subTopicId} showSpeakButton={false}>{id}</AccessibleText>
+        <AccessibleText style={styles.subTopicTitle}>{title}</AccessibleText>
       </View>
       <Ionicons 
         name={isComplete ? 'checkbox' : 'checkbox-outline'} 
         size={24} 
-        color={COLORS.icon} 
+        color={currentTheme.text} 
       />
     </Pressable>
   );
 };
 
-const ModuleCard = ({ module }: { module: LessonModule }) => (
-  <View style={styles.card}>
-    <Text style={styles.moduleId}>{module.moduleId}</Text>
-    <Text style={styles.moduleTitle}>{module.title}</Text>
-    <View style={styles.divider} />
-    <View style={styles.subTopicContainer}>
-      {module.subTopics.map(subTopic => (
-        <SubTopicItem 
-          key={subTopic.id} 
-          id={subTopic.id} 
-          title={subTopic.title} 
-        />
-      ))}
-    </View>
-  </View>
-);
+// --- Module Component ---
+const ModuleCard = ({ module }: { module: LessonModule }) => {
+  const { theme } = useAccessibilityStore();
+  const currentTheme = themes[theme];
 
+  return (
+    <View style={[styles.card, { backgroundColor: currentTheme.card }]}>
+      <AccessibleText style={styles.moduleId} showSpeakButton={false}>{module.moduleId}</AccessibleText>
+      <AccessibleText style={styles.moduleTitle}>{module.title}</AccessibleText>
+      <View style={[styles.divider, { backgroundColor: currentTheme.border }]} />
+      <View style={styles.subTopicContainer}>
+        {module.subTopics.map(subTopic => (
+          <SubTopicItem 
+            key={subTopic.id} 
+            id={subTopic.id} 
+            title={subTopic.title} 
+          />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// --- Main Lesson Detail Screen ---
 export default function LessonDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>(); 
-  
+  const { id } = useLocalSearchParams<{ id: string }>();
   const lesson = lessonDetails.find(l => l.id === id);
+  const { theme, isDyslexicFont } = useAccessibilityStore(); // <-- GET THEME
+  const currentTheme = themes[theme]; // <-- GET COLORS
 
   if (!lesson) {
     return (
-      <SafeAreaView>
-        <Text>Lesson not found!</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.bg }}>
+        <AccessibleText>Lesson not found!</AccessibleText>
       </SafeAreaView>
     );
   }
 
   const startQuiz = () => {
     router.push({
-      pathname: '/quiz/[id]', 
-      params: { id: lesson.id },  
+      pathname: '/quiz/[id]',
+      params: { id: lesson.id },
     });
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Custom Header */}
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
       <Stack.Screen 
         options={{
           headerShown: true,
           title: lesson.title,
-          headerTitleStyle: {
-            fontSize: 18,
-            fontWeight: 'bold',
-          },
+          headerStyle: { backgroundColor: currentTheme.card },
+          headerTitleStyle: { color: currentTheme.text, fontFamily: isDyslexicFont ? 'Lexend_700Bold' : undefined },
           headerLeft: () => (
             <Pressable onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <Ionicons name="arrow-back" size={28} color={COLORS.textDark} />
+              <Ionicons name="arrow-back" size={28} color={currentTheme.text} />
             </Pressable>
           ),
         }} 
@@ -105,27 +106,25 @@ export default function LessonDetailScreen() {
         ))}
       </ScrollView>
 
-      {/* Quiz Button */}
-      <View style={styles.quizButtonContainer}>
+      <View style={[styles.quizButtonContainer, { backgroundColor: currentTheme.bg }]}>
         <Pressable style={styles.quizButton} onPress={startQuiz}>
-          <Text style={styles.quizButtonText}>Quiz</Text>
+          <AccessibleText style={styles.quizButtonText} showSpeakButton={false}>Quiz</AccessibleText>
         </Pressable>
       </View>
     </SafeAreaView>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   scrollContainer: {
     padding: 20,
-    paddingBottom: 100, 
+    paddingBottom: 100,
   },
   card: {
-    backgroundColor: COLORS.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -133,17 +132,14 @@ const styles = StyleSheet.create({
   moduleId: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   moduleTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: COLORS.textDark,
     marginTop: 4,
   },
   divider: {
     height: 1,
-    backgroundColor: '#EEEEEE',
     marginVertical: 15,
   },
   subTopicContainer: {
@@ -157,14 +153,13 @@ const styles = StyleSheet.create({
   },
   subTopicText: {
     flex: 1,
+    paddingRight: 10,
   },
   subTopicId: {
     fontSize: 14,
-    color: COLORS.textLight,
   },
   subTopicTitle: {
     fontSize: 16,
-    color: COLORS.textDark,
   },
   quizButtonContainer: {
     position: 'absolute',
@@ -172,16 +167,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: 'transparent',
+    borderTopWidth: 1,
+    borderTopColor: 'transparent',
   },
   quizButton: {
-    backgroundColor: COLORS.button,
+    backgroundColor: '#3A86FF',
     padding: 16,
     borderRadius: 50,
     alignItems: 'center',
   },
   quizButtonText: {
-    color: COLORS.buttonText,
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },

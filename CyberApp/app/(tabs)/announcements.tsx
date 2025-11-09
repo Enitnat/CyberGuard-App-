@@ -1,68 +1,68 @@
+// app/(tabs)/announcements.tsx
 import React from 'react';
 import { 
   StyleSheet, 
   View, 
-  Text, 
   FlatList, 
   Pressable 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
+import { AccessibleText } from '@/components/AccessibleText'; // <-- IMPORT
 
-const COLORS = {
-  background: '#FFFFFF',
-  textDark: '#000000',
-  textLight: '#666666',
-  border: '#EEEEEE',
-  icon: '#0D1B2A',
-};
-
+// --- Mock Data (Unchanged) ---
 const announcements = [
   { id: '1', label: 'New Lesson Available', description: 'Phishing 2.0 is now live!' },
   { id: '2', label: 'Security Alert', description: 'A new system-wide vulnerability was found...' },
   { id: '3', label: 'App Update', description: 'Version 1.1 is available with new features.' },
-  { id: '4', label: 'Scheduled Maintenance', description: 'App will be down on Sunday from 2-3 AM.' },
-  { id: '5', label: 'Tip of the Week', description: 'Remember to update your passwords.' },
 ];
 
+// --- Single Announcement Item Component ---
 type ItemProps = {
   label: string;
   description: string;
   onPress: () => void;
 };
 
-const AnnouncementItem = ({ label, description, onPress }: ItemProps) => (
-  <Pressable style={styles.itemContainer} onPress={onPress}>
-    <Ionicons name="shield-outline" size={24} color={COLORS.icon} style={styles.icon} />
-    <View style={styles.textContainer}>
-      <Text style={styles.itemLabel}>{label}</Text>
-      <Text style={styles.itemDescription}>{description}</Text>
-    </View>
-    <Ionicons name="arrow-up" size={18} color={COLORS.textLight} />
-  </Pressable>
-);
+const AnnouncementItem = ({ label, description, onPress }: ItemProps) => {
+  const { theme } = useAccessibilityStore();
+  const currentTheme = themes[theme];
 
+  return (
+    <Pressable style={styles.itemContainer} onPress={onPress}>
+      <Ionicons name="shield-outline" size={24} color={currentTheme.text} style={styles.icon} />
+      <View style={styles.textContainer}>
+        <AccessibleText style={styles.itemLabel} showSpeakButton={false}>{label}</AccessibleText>
+        <AccessibleText style={styles.itemDescription}>{description}</AccessibleText>
+      </View>
+      <Ionicons name="arrow-up" size={18} color={currentTheme.text} />
+    </Pressable>
+  );
+};
+
+// --- Main Announcements Screen ---
 export default function AnnouncementsScreen() {
   const router = useRouter();
+  const { theme, isDyslexicFont } = useAccessibilityStore(); // <-- GET THEME
+  const currentTheme = themes[theme]; // <-- GET COLORS
 
   const openAnnouncement = (id: string) => {
     console.log('Opening announcement:', id);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
       <Stack.Screen 
         options={{
           headerShown: true,
-          title: 'Announcement', 
-          headerTitleStyle: {
-            fontSize: 22,
-            fontWeight: 'bold',
-          },
+          title: 'Announcements',
+          headerStyle: { backgroundColor: currentTheme.card },
+          headerTitleStyle: { color: currentTheme.text, fontFamily: isDyslexicFont ? 'Lexend_700Bold' : undefined },
           headerLeft: () => (
             <Pressable onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <Ionicons name="arrow-back" size={28} color={COLORS.textDark} />
+              <Ionicons name="arrow-back" size={28} color={currentTheme.text} />
             </Pressable>
           ),
         }} 
@@ -79,23 +79,22 @@ export default function AnnouncementsScreen() {
           />
         )}
         ListHeaderComponent={
-          <Text style={styles.listHeader}>Announcement</Text>
+          <AccessibleText style={styles.listHeader}>Announcement</AccessibleText>
         }
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={() => <View style={[styles.separator, { backgroundColor: currentTheme.border }]} />}
       />
     </SafeAreaView>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   listHeader: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textDark,
     paddingHorizontal: 20,
     paddingVertical: 15,
   },
@@ -104,26 +103,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
-    backgroundColor: COLORS.background,
   },
   icon: {
     marginRight: 15,
   },
   textContainer: {
-    flex: 1, 
+    flex: 1,
   },
   itemLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   itemDescription: {
     fontSize: 14,
-    color: COLORS.textLight,
   },
   separator: {
     height: 1,
-    backgroundColor: COLORS.border,
     marginLeft: 20,
     marginRight: 20,
   },

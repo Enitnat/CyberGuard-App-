@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// app/index.tsx
+import React, { useState, useEffect } from 'react'; // <-- ADD useEffect
 import { 
   StyleSheet, 
   View, 
@@ -7,31 +8,63 @@ import {
   TextInput, 
   Pressable, 
   StatusBar,
-  Alert
+  Alert,
+  KeyboardAvoidingView, // <-- ADD THIS
+  ScrollView,           // <-- ADD THIS
+  Platform              // <-- ADD THIS
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-
-const COLORS = {
-  background: '#FFFFFF',
-  darkBlue: '#0D1B2A',
-  inputBlue: '#1B263B',
-  activeBlue: '#3A86FF',
-  textLight: '#E0E1DD',
-  textDark: '#000000',
-  textWhite: '#FFFFFF',
-};
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
+import { AccessibleText } from '@/components/AccessibleText';
+import { supabase } from '@/lib'; 
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('TIPQC@tip.edu.ph');
-  const [password, setPassword] = useState('************');
-  const [activeTab, setActiveTab] = useState('login');
-  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [loading, setLoading] = useState(false);
 
-  const onSignInPressed = () => {
-    console.log('Email:', email, 'Password:', password);
-    
-    router.replace('/(tabs)'); 
+  const router = useRouter();
+  const { theme } = useAccessibilityStore();
+  const currentTheme = themes[theme];
+
+  // --- FIX #3: CLEAR FIELDS ON SWAP ---
+  useEffect(() => {
+    // This runs every time the 'mode' (Login/Signup) changes
+    setEmail('');
+    setPassword('');
+  }, [mode]);
+  // --- END FIX ---
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      Alert.alert('Signup Error', error.message);
+    } else {
+      Alert.alert('Success!', 'Please check your email to confirm your account.');
+    }
+    setLoading(false);
+  };
+
+  const handleSignIn = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      Alert.alert('Login Error', error.message);
+    } else {
+      router.replace('/(tabs)');
+    }
+    setLoading(false);
   };
   
   const onForgotPasswordPressed = () => {
@@ -39,91 +72,100 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
       <Stack.Screen options={{ headerShown: false }} /> 
       
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('@/assets/images/logo.png')}
-          style={styles.logo}
-        />
-        <Text style={styles.logoText}>CYBERSAFE</Text>
-        <Text style={styles.logoSubtitle}>
-          SECURE KNOWLEDGE & INFORMATION FOR BETTER INCLUSIVE DIGITAL INITIATIVE
-        </Text>
-      </View>
+      {/* --- FIX #4: KEYBOARD BLOCKING --- */}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('@/assets/images/logo.png')}
+              style={styles.logo}
+            />
+            <AccessibleText style={styles.logoText} showSpeakButton={false}>CYBERSAFE</AccessibleText>
+            <AccessibleText style={styles.logoSubtitle} showSpeakButton={false}>
+              SECURE KNOWLEDGE & INFORMATION FOR BETTER INCLUSIVE DIGITAL INITIATIVE
+            </AccessibleText>
+          </View>
 
-      <View style={styles.toggleContainer}>
-        <Pressable
-          style={[
-            styles.toggleButton,
-            activeTab === 'login' ? styles.toggleButtonActive : {},
-          ]}
-          onPress={() => setActiveTab('login')}>
-          <Text
-            style={[
-              styles.toggleText,
-              activeTab === 'login' ? styles.toggleTextActive : {},
-            ]}>
-            Login
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.toggleButton,
-            activeTab === 'signup' ? styles.toggleButtonActive : {},
-          ]}
-          onPress={() => setActiveTab('signup')}>
-          <Text
-            style={[
-              styles.toggleText,
-              activeTab === 'signup' ? styles.toggleTextActive : {},
-            ]}>
-            Sign Up
-          </Text>
-        </Pressable>
-      </View>
+          <View style={[styles.toggleContainer, { backgroundColor: currentTheme.card }]}>
+            <Pressable
+              style={[
+                styles.toggleButton,
+                mode === 'login' ? styles.toggleButtonActive : {},
+              ]}
+              onPress={() => setMode('login')}>
+              <Text style={[styles.toggleText, {color: currentTheme.text}]}>
+                Login
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.toggleButton,
+                mode === 'signup' ? styles.toggleButtonActive : {},
+              ]}
+              onPress={() => setMode('signup')}>
+              <Text style={[styles.toggleText, {color: currentTheme.text}]}>
+                Sign Up
+              </Text>
+            </Pressable>
+          </View>
 
-      {/* --- Form --- */}
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Enter your email"
-          placeholderTextColor="#999"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+          <View style={[styles.formContainer, { backgroundColor: currentTheme.card }]}>
+            <AccessibleText style={styles.label} showSpeakButton={false}>Email</AccessibleText>
+            <TextInput
+              style={[styles.input, { backgroundColor: currentTheme.bg, color: currentTheme.text }]}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              placeholderTextColor="#999"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Enter your password"
-          placeholderTextColor="#999"
-          secureTextEntry 
-        />
+            <AccessibleText style={styles.label} showSpeakButton={false}>Password</AccessibleText>
+            <TextInput
+              style={[styles.input, { backgroundColor: currentTheme.bg, color: currentTheme.text }]}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              placeholderTextColor="#999"
+              secureTextEntry
+            />
 
-        <Pressable style={styles.signInButton} onPress={onSignInPressed}>
-          <Text style={styles.signInButtonText}>Sign In</Text>
-        </Pressable>
+            <Pressable 
+              style={styles.signInButton} 
+              onPress={mode === 'login' ? handleSignIn : handleSignUp}
+              disabled={loading}
+            >
+              <Text style={styles.signInButtonText}>
+                {loading ? 'Loading...' : (mode === 'login' ? 'Sign In' : 'Sign Up')}
+              </Text>
+            </Pressable>
 
-        <Pressable style={styles.forgotPasswordButton} onPress={onForgotPasswordPressed}>
-          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-        </Pressable>
-      </View>
+            {mode === 'login' && (
+              <Pressable style={styles.forgotPasswordButton} onPress={onForgotPasswordPressed}>
+                <Text style={[styles.forgotPasswordText, { color: currentTheme.text }]}>Forgot password?</Text>
+              </Pressable>
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      {/* --- END FIX #4 --- */}
     </SafeAreaView>
   );
 }
 
+// --- Styles ---
+// FIX #1: The 'textAlign: 'center'' is already in logoText and logoSubtitle
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   logoContainer: {
     alignItems: 'center',
@@ -139,18 +181,16 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textDark,
+    textAlign: 'center', // <-- FIX #1
   },
   logoSubtitle: {
     fontSize: 10,
-    color: COLORS.textDark,
-    textAlign: 'center',
+    textAlign: 'center', // <-- FIX #1
     paddingHorizontal: 40,
     marginTop: 5,
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: COLORS.darkBlue,
     borderRadius: 50,
     marginHorizontal: 20,
     overflow: 'hidden',
@@ -161,47 +201,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   toggleButtonActive: {
-    backgroundColor: COLORS.activeBlue,
+    backgroundColor: '#3A86FF',
     borderRadius: 50,
   },
   toggleText: {
-    color: COLORS.textWhite,
     fontWeight: 'bold',
   },
-  toggleTextActive: {
-    color: COLORS.textWhite,
-  },
   formContainer: {
-    backgroundColor: COLORS.darkBlue,
     marginHorizontal: 20,
     borderRadius: 20,
     padding: 24,
-    marginTop: -20, 
-    zIndex: -1,     
-    paddingTop: 40, 
+    marginTop: -20,
+    zIndex: -1,
+    paddingTop: 40,
+    paddingBottom: 24, // Added padding for scrollview
   },
   label: {
-    color: COLORS.textWhite,
     fontSize: 16,
     marginBottom: 8,
     marginTop: 10,
   },
   input: {
-    backgroundColor: COLORS.inputBlue,
-    color: COLORS.textLight,
     padding: 15,
     borderRadius: 10,
     fontSize: 16,
   },
   signInButton: {
-    backgroundColor: COLORS.activeBlue,
+    backgroundColor: '#3A86FF',
     padding: 18,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 30,
   },
   signInButtonText: {
-    color: COLORS.textWhite,
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -210,7 +243,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   forgotPasswordText: {
-    color: COLORS.textWhite,
     textDecorationLine: 'underline',
   },
 });
