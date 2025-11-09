@@ -1,11 +1,10 @@
-// app/quiz/[id].tsx
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Button, Alert, Image, View, Pressable } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Question, lessons } from '@/data/lessons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
-import { AccessibleText } from '@/components/AccessibleText'; // <-- IMPORT
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
+import { AccessibleText } from '@/components/AccessibleText'; 
 import { Ionicons } from '@expo/vector-icons';
 
 type QuestionProps = {
@@ -13,7 +12,6 @@ type QuestionProps = {
   onAnswer: (isCorrect: boolean) => void;
 };
 
-// --- Question Component (Refactored) ---
 const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
@@ -94,7 +92,6 @@ const QuestionComponent = ({ question, onAnswer }: QuestionProps) => {
   );
 };
 
-// --- Main Quiz Screen (Refactored) ---
 export default function QuizScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -159,7 +156,6 @@ export default function QuizScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,

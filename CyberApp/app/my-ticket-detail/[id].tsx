@@ -1,4 +1,3 @@
-// app/my-ticket-detail/[id].tsx
 import React, { useEffect, useState } from 'react';
 import { 
   View, 
@@ -16,7 +15,6 @@ import { AccessibleText } from '@/components/AccessibleText';
 import { useAuthStore } from '@/stores/authStore';
 import { supabase } from '@/lib';
 
-// Types
 type Ticket = {
   id: number;
   created_at: string;
@@ -29,7 +27,7 @@ type Reply = {
   id: number;
   created_at: string;
   message: string;
-  user_id: string; // ID of the person who replied
+  user_id: string; 
 };
 
 export default function MyTicketDetailScreen() {
@@ -50,7 +48,6 @@ export default function MyTicketDetailScreen() {
   const fetchTicketDetails = async () => {
     setLoading(true);
     
-    // 1. Fetch the ticket itself
     const { data: ticketData, error: ticketError } = await supabase
       .from('tickets')
       .select('*')
@@ -65,7 +62,6 @@ export default function MyTicketDetailScreen() {
     
     setTicket(ticketData);
 
-    // 2. Fetch all replies for this ticket
     const { data: repliesData, error: repliesError } = await supabase
       .from('ticket_replies')
       .select('*')
@@ -118,12 +114,9 @@ export default function MyTicketDetailScreen() {
             styles.reply, 
             item.user_id === profile?.id ? styles.myReply : styles.theirReply
           ]}>
-            {/* --- THIS IS THE FIX --- */}
-            {/* We must manually set the color here to override the theme */}
             <AccessibleText style={item.user_id === profile?.id ? {color: '#FFFFFF'} : {color: '#000000'}}>
               {item.message}
             </AccessibleText>
-            {/* --- END OF FIX --- */}
           </View>
         )}
         contentContainerStyle={styles.listContainer}
@@ -137,7 +130,6 @@ export default function MyTicketDetailScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   listContainer: { padding: 20 },
@@ -159,11 +151,11 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   myReply: {
-    backgroundColor: '#3A86FF', // Blue background
+    backgroundColor: '#3A86FF', 
     alignSelf: 'flex-end',
   },
   theirReply: {
-    backgroundColor: '#E0E0E0', // Light grey background
+    backgroundColor: '#E0E0E0', 
     alignSelf: 'flex-start',
   },
 });

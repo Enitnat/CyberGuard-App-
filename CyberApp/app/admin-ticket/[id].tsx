@@ -1,4 +1,3 @@
-// app/admin-ticket/[id].tsx
 import React, { useEffect, useState } from 'react';
 import { 
   View, 
@@ -18,7 +17,7 @@ import { AccessibleText } from '@/components/AccessibleText';
 import { useAuthStore } from '@/stores/authStore';
 import { supabase } from '@/lib';
 
-// Types
+
 type Ticket = {
   id: number;
   created_at: string;
@@ -31,7 +30,7 @@ type Reply = {
   id: number;
   created_at: string;
   message: string;
-  user_id: string; // ID of the admin who replied
+  user_id: string; 
 };
 
 export default function AdminTicketDetailScreen() {
@@ -55,7 +54,6 @@ export default function AdminTicketDetailScreen() {
   const fetchTicketDetails = async () => {
     setLoading(true);
     
-    // 1. Fetch the ticket itself
     const { data: ticketData, error: ticketError } = await supabase
       .from('tickets')
       .select('*')
@@ -71,7 +69,6 @@ export default function AdminTicketDetailScreen() {
     setTicket(ticketData);
     setNewStatus(ticketData.status);
 
-    // 2. Fetch all replies for this ticket
     const { data: repliesData, error: repliesError } = await supabase
       .from('ticket_replies')
       .select('*')
@@ -92,7 +89,7 @@ export default function AdminTicketDetailScreen() {
       .from('ticket_replies')
       .insert({
         ticket_id: id,
-        user_id: profile.id, // The admin's profile ID
+        user_id: profile.id, 
         message: newReply,
       });
 
@@ -100,7 +97,7 @@ export default function AdminTicketDetailScreen() {
       Alert.alert('Error', 'Could not send reply.');
     } else {
       setNewReply('');
-      fetchTicketDetails(); // Refresh the whole list
+      fetchTicketDetails(); 
     }
   };
 
@@ -116,7 +113,7 @@ export default function AdminTicketDetailScreen() {
       Alert.alert('Error', 'Could not update status.');
     } else {
       Alert.alert('Success', 'Status updated.');
-      fetchTicketDetails(); // Refresh
+      fetchTicketDetails(); 
     }
   };
 
@@ -161,7 +158,6 @@ export default function AdminTicketDetailScreen() {
         )}
         ListFooterComponent={
           <View style={[styles.adminControls, { backgroundColor: currentTheme.card }]}>
-            {/* --- Status Control --- */}
             <AccessibleText style={styles.controlLabel}>Change Status</AccessibleText>
             <View style={styles.statusContainer}>
               {['new', 'in_progress', 'closed'].map((status) => (
@@ -186,7 +182,6 @@ export default function AdminTicketDetailScreen() {
               <AccessibleText style={styles.submitButtonText} showSpeakButton={false}>Update Status</AccessibleText>
             </Pressable>
             
-            {/* --- Reply Control --- */}
             <AccessibleText style={styles.controlLabel}>Send Reply</AccessibleText>
             <TextInput
               style={[styles.input, { backgroundColor: currentTheme.bg, color: currentTheme.text }]}
@@ -207,7 +202,6 @@ export default function AdminTicketDetailScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   listContainer: { padding: 20 },

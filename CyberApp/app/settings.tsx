@@ -1,4 +1,3 @@
-// app/settings.tsx
 import React from 'react';
 import { View, StyleSheet, Pressable, Switch, Button, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +8,6 @@ import { AccessibleText } from '@/components/AccessibleText';
 import { useLessonStore } from '@/stores/lessonStore';
 import { useAuthStore } from '@/stores/authStore'; 
 
-// Reusable Settings Row Component
 const SettingRow = ({ label, children }: { label: string, children: React.ReactNode }) => {
   const { theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
@@ -107,19 +105,16 @@ export default function SettingsModal() {
           </Pressable>
         </View>
         
-        {/* --- 1. "MY TICKETS" BUTTON ADDED --- */}
         <View style={{marginTop: 40}}>
           <Button title="My Submitted Tickets" onPress={() => router.push('/my-tickets')} />
         </View>
         
-        {/* --- 2. ADMIN BUTTON (Conditional) --- */}
         {profile?.role === 'admin' && (
           <View style={{marginTop: 20}}>
             <Button title="Admin Dashboard" onPress={() => router.push('/admin')} />
           </View>
         )}
         
-        {/* --- 3. LOGOUT BUTTON --- */}
         <View style={{marginTop: 20}}>
           <Button title="Log Out" onPress={handleLogout} color="red" />
         </View>
@@ -129,7 +124,7 @@ export default function SettingsModal() {
   );
 }
 
-// Styles
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

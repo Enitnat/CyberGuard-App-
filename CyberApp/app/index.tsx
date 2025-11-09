@@ -1,4 +1,3 @@
-// app/index.tsx
 import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
@@ -18,7 +17,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
 import { AccessibleText } from '@/components/AccessibleText';
 import { supabase } from '@/lib'; 
-import { useAuthStore } from '@/stores/authStore'; // <-- IMPORT AUTH STORE
+import { useAuthStore } from '@/stores/authStore'; 
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -29,7 +28,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
-  const fetchUserProfile = useAuthStore((state) => state.fetchUserProfile); // <-- GET AUTH FUNCTION
+  const fetchUserProfile = useAuthStore((state) => state.fetchUserProfile);
 
   useEffect(() => {
     setEmail('');
@@ -61,12 +60,8 @@ export default function LoginScreen() {
     if (error) {
       Alert.alert('Login Error', error.message);
     } else if (data.session) {
-      // --- THIS IS THE NEW PART ---
-      // 1. Fetch the user's role and profile
       await fetchUserProfile(data.session);
-      // 2. Now that the role is in the store, go to the app
       router.replace('/(tabs)');
-      // --- END NEW PART ---
     }
     setLoading(false);
   };
@@ -163,7 +158,6 @@ export default function LoginScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

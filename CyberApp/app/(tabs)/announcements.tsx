@@ -1,4 +1,3 @@
-// app/(tabs)/announcements.tsx
 import React from 'react';
 import { 
   StyleSheet, 
@@ -9,17 +8,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
-import { AccessibleText } from '@/components/AccessibleText'; // <-- IMPORT
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; 
+import { AccessibleText } from '@/components/AccessibleText'; 
 
-// --- Mock Data (Unchanged) ---
 const announcements = [
   { id: '1', label: 'New Lesson Available', description: 'Phishing 2.0 is now live!' },
   { id: '2', label: 'Security Alert', description: 'A new system-wide vulnerability was found...' },
   { id: '3', label: 'App Update', description: 'Version 1.1 is available with new features.' },
 ];
 
-// --- Single Announcement Item Component ---
 type ItemProps = {
   label: string;
   description: string;
@@ -42,11 +39,10 @@ const AnnouncementItem = ({ label, description, onPress }: ItemProps) => {
   );
 };
 
-// --- Main Announcements Screen ---
 export default function AnnouncementsScreen() {
   const router = useRouter();
-  const { theme, isDyslexicFont } = useAccessibilityStore(); // <-- GET THEME
-  const currentTheme = themes[theme]; // <-- GET COLORS
+  const { theme, isDyslexicFont } = useAccessibilityStore(); 
+  const currentTheme = themes[theme]; 
 
   const openAnnouncement = (id: string) => {
     console.log('Opening announcement:', id);
@@ -87,7 +83,6 @@ export default function AnnouncementsScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

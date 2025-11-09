@@ -1,15 +1,13 @@
-// app/lesson/[id].tsx
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { lessonDetails, LessonModule } from '@/data/lessons';
-import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
-import { AccessibleText } from '@/components/AccessibleText'; // <-- IMPORT
-import { useLessonStore } from '@/stores/lessonStore'; // <-- For completions
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
+import { AccessibleText } from '@/components/AccessibleText'; 
+import { useLessonStore } from '@/stores/lessonStore'; 
 
-// --- Sub-Topic Item Component ---
 const SubTopicItem = ({ id, title }: { id: string, title: string }) => {
   const router = useRouter();
   const isComplete = useLessonStore(state => state.isTopicComplete(id));
@@ -38,7 +36,6 @@ const SubTopicItem = ({ id, title }: { id: string, title: string }) => {
   );
 };
 
-// --- Module Component ---
 const ModuleCard = ({ module }: { module: LessonModule }) => {
   const { theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
@@ -61,13 +58,12 @@ const ModuleCard = ({ module }: { module: LessonModule }) => {
   );
 };
 
-// --- Main Lesson Detail Screen ---
 export default function LessonDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const lesson = lessonDetails.find(l => l.id === id);
-  const { theme, isDyslexicFont } = useAccessibilityStore(); // <-- GET THEME
-  const currentTheme = themes[theme]; // <-- GET COLORS
+  const { theme, isDyslexicFont } = useAccessibilityStore(); 
+  const currentTheme = themes[theme]; 
 
   if (!lesson) {
     return (
@@ -115,7 +111,6 @@ export default function LessonDetailScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

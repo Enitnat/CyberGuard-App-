@@ -1,4 +1,3 @@
-// app/(tabs)/lessons.tsx
 import React from 'react';
 import { 
   StyleSheet, 
@@ -12,7 +11,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
 import { AccessibleText } from '@/components/AccessibleText';
 
-// --- Mock Data (Unchanged) ---
 const lessonData = [
   { id: '1', title: 'Lesson 1', updated: 'Updated today' },
   { id: '2', title: 'Lesson 2', updated: 'Updated today' },
@@ -20,12 +18,11 @@ const lessonData = [
   { id: '4', title: 'Lesson 4', updated: 'Updated today' },
   { id: '5', title: 'Lesson 5', updated: 'Updated yesterday' },
   { id: '6', title: 'Lesson 6', updated: 'Updated 2 days ago' },
-  { id: '7', title: 'Lesson 7', updated: 'Updated today' }, // 7th item
-  { id: '8', title: 'Lesson 8', updated: 'Updated yesterday' }, // 8th item
-  { id: '9', title: 'Lesson 9', updated: 'Updated 2 days ago' }, // 9th item
+  { id: '7', title: 'Lesson 7', updated: 'Updated today' },
+  { id: '8', title: 'Lesson 8', updated: 'Updated yesterday' }, 
+  { id: '9', title: 'Lesson 9', updated: 'Updated 2 days ago' },
 ];
 
-// --- Single Lesson Item Component ---
 type LessonItemProps = {
   title: string;
   updated: string;
@@ -47,12 +44,10 @@ const LessonItem = ({ title, updated, onPress }: LessonItemProps) => {
   );
 };
 
-// --- Pagination Component ---
 const Pagination = () => {
   const { theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
 
-  // This is the full pagination from your original design
   return (
     <View style={styles.paginationContainer}>
       <Pressable style={[styles.pageButton, styles.pageButtonActive]}>
@@ -75,7 +70,7 @@ const Pagination = () => {
   );
 };
 
-// --- Main Lessons Screen ---
+
 export default function LessonsScreen() {
   const router = useRouter();
   const { theme, isDyslexicFont } = useAccessibilityStore();
@@ -122,7 +117,6 @@ export default function LessonsScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -130,13 +124,11 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 8,
   },
-  // --- THIS IS THE GRID FIX ---
   itemContainer: {
-    width: '33.33%', // Use a fixed width instead of flex
+    width: '33.33%', 
     alignItems: 'center',
     padding: 8,
   },
-  // --- END OF GRID FIX ---
   itemIconBackground: {
     borderRadius: 10,
     width: '100%',

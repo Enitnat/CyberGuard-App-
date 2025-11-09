@@ -1,4 +1,3 @@
-// app/my-tickets.tsx
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +8,6 @@ import { AccessibleText } from '@/components/AccessibleText';
 import { useAuthStore } from '@/stores/authStore';
 import { supabase } from '@/lib';
 
-// Define the type for a ticket
 type Ticket = {
   id: number;
   created_at: string;
@@ -19,14 +17,12 @@ type Ticket = {
   status: string;
 };
 
-// --- Single Ticket Item Component ---
 const TicketItem = ({ item }: { item: Ticket }) => {
   const { theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
   const router = useRouter();
 
   const onPress = () => {
-    // Navigate to the new detail screen
     router.push({
       pathname: '/my-ticket-detail/[id]',
       params: { id: item.id.toString() }
@@ -58,7 +54,6 @@ export default function MyTicketsScreen() {
     if (profile) {
       fetchTickets();
     } else {
-      // Should not happen if logged in, but good to check
       Alert.alert('Error', 'Could not find user profile.');
       router.back();
     }
@@ -67,11 +62,10 @@ export default function MyTicketsScreen() {
   const fetchTickets = async () => {
     if (!profile) return;
     
-    // Select only tickets where user_id matches the logged-in user's profile id
     const { data, error } = await supabase
       .from('tickets')
       .select('*')
-      .eq('user_id', profile.id) // This fetches *only* their tickets
+      .eq('user_id', profile.id)
       .order('created_at', { ascending: false }); 
 
     if (error) {
@@ -116,7 +110,6 @@ export default function MyTicketsScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

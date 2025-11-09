@@ -1,4 +1,3 @@
-// app/_layout.tsx
 import { Stack } from 'expo-router';
 import React from 'react';
 import { 
@@ -8,7 +7,7 @@ import {
 } from '@expo-google-fonts/lexend';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useAuthStore } from '@/stores/authStore'; // <-- IMPORT AUTH STORE
+import { useAuthStore } from '@/stores/authStore'; 
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,17 +17,15 @@ export default function RootLayout() {
     Lexend_700Bold,
   });
 
-  // Get the appOnLoad function
   const appOnLoad = useAuthStore((state) => state.appOnLoad);
 
   useEffect(() => {
-    // Check if a user is already logged in
     appOnLoad();
     
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]); // Only run once on load
+  }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return null;

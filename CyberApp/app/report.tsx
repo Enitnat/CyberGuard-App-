@@ -1,4 +1,3 @@
-// app/report.tsx
 import React, { useState } from 'react';
 import { 
   StyleSheet, 
@@ -13,7 +12,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
 import { AccessibleText } from '@/components/AccessibleText';
-import { supabase } from '@/lib'; // Import your Supabase client
+import { supabase } from '@/lib';
 
 export default function ReportScreen() {
   const router = useRouter();
@@ -31,7 +30,6 @@ export default function ReportScreen() {
     }
     setLoading(true);
 
-    // 1. Get the currently logged-in user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       Alert.alert('Error', 'You must be logged in to submit a report.');
@@ -39,14 +37,13 @@ export default function ReportScreen() {
       return;
     }
 
-    // 2. Insert the new ticket into the database
     const { error } = await supabase
       .from('tickets')
       .insert({
         user_id: user.id,
         subject: subject,
         description: description,
-        status: 'new' // Set the initial status
+        status: 'new'
       });
 
     setLoading(false);
@@ -128,11 +125,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: 'transparent', // You can use currentTheme.border here
+    borderColor: 'transparent', 
   },
   textArea: {
     height: 150,
-    textAlignVertical: 'top', // For Android
+    textAlignVertical: 'top', 
   },
   submitButton: {
     backgroundColor: '#3A86FF',

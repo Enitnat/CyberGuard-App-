@@ -1,18 +1,16 @@
-// app/(tabs)/_layout.tsx
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; // <-- IMPORT
+import { useAccessibilityStore, themes } from '@/stores/accessibilityStore'; 
 
 export default function TabLayout() {
-  const { theme } = useAccessibilityStore(); // <-- GET THEME
-  const currentTheme = themes[theme]; // <-- GET COLORS
+  const { theme } = useAccessibilityStore(); 
+  const currentTheme = themes[theme];
 
-  // Define our colors
   const TAB_COLORS = {
     active: '#3A86FF',
-    inactive: currentTheme.text, // <-- USE THEME
-    background: currentTheme.card, // <-- USE THEME
+    inactive: currentTheme.text,
+    background: currentTheme.card, 
   };
 
   return (
@@ -23,7 +21,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: TAB_COLORS.inactive,
         tabBarStyle: {
           backgroundColor: TAB_COLORS.background,
-          borderTopColor: currentTheme.border, // <-- USE THEME
+          borderTopColor: currentTheme.border,
           paddingTop: 10,
         },
         tabBarLabelStyle: {

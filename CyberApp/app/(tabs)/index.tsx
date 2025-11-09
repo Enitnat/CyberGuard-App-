@@ -1,4 +1,3 @@
-// app/(tabs)/index.tsx
 import React from 'react';
 import { 
   StyleSheet, 
@@ -13,7 +12,6 @@ import { useAccessibilityStore, themes } from '@/stores/accessibilityStore';
 import { useRouter } from 'expo-router';
 import { AccessibleText } from '@/components/AccessibleText';
 
-// --- Custom Header Component (with Centering Fix) ---
 const CustomHeader = () => {
   const router = useRouter();
   const { theme } = useAccessibilityStore();
@@ -22,25 +20,21 @@ const CustomHeader = () => {
   return (
     <View style={[styles.headerContainer, { backgroundColor: currentTheme.bg }]}>
       
-      {/* 1. Left Button */}
       <Pressable style={styles.headerButton} onPress={() => router.push('/settings')}>
         <Ionicons name="settings-outline" size={28} color={currentTheme.text} />
       </Pressable>
       
-      {/* 2. Center Title (with flex: 1) */}
       <View style={styles.headerTitleContainer}>
         <AccessibleText style={styles.headerTitle} showSpeakButton={false}>
           Welcome!
         </AccessibleText>
       </View>
-      
-      {/* 3. Right Placeholder (to balance the layout) */}
+    
       <View style={styles.headerButton} /> 
     </View>
   );
 };
 
-// --- Main Home Screen Component ---
 export default function HomeScreen() {
   const router = useRouter();
   const { theme } = useAccessibilityStore();
@@ -55,7 +49,6 @@ export default function HomeScreen() {
       <CustomHeader />
       <ScrollView contentContainerStyle={styles.contentContainer}>
         
-        {/* All your cards... */}
         <Pressable style={[styles.continueCard, {backgroundColor: '#3A86FF'}]} onPress={goToLessons}>
           <AccessibleText style={styles.continueTitle} showSpeakButton={false}>Continue Learning</AccessibleText>
           <AccessibleText style={styles.continueSubtitle} showSpeakButton={false}>Next up: Phishing Awareness</AccessibleText>
@@ -98,12 +91,10 @@ export default function HomeScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  // --- HEADER STYLES (UPDATED) ---
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -113,18 +104,17 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   headerButton: {
-    width: 32, // Give a fixed width
+    width: 32, 
     alignItems: 'flex-start',
   },
   headerTitleContainer: {
-    flex: 1, // Let the title take up the middle space
-    alignItems: 'center', // Center the text
+    flex: 1, 
+    alignItems: 'center', 
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
   },
-  // --- END HEADER STYLES ---
   contentContainer: {
     padding: 16,
   },

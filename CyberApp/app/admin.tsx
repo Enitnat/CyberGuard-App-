@@ -1,4 +1,3 @@
-// app/admin.tsx
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +8,6 @@ import { AccessibleText } from '@/components/AccessibleText';
 import { useAuthStore } from '@/stores/authStore';
 import { supabase } from '@/lib';
 
-// Define the type for a ticket
 type Ticket = {
   id: number;
   created_at: string;
@@ -19,13 +17,11 @@ type Ticket = {
   status: string;
 };
 
-// --- Single Ticket Item Component ---
 const TicketItem = ({ item }: { item: Ticket }) => {
   const { theme } = useAccessibilityStore();
   const currentTheme = themes[theme];
-  const router = useRouter(); // <-- 1. Get router
+  const router = useRouter(); 
 
-  // --- 2. Create navigation function ---
   const onPress = () => {
     router.push({
       pathname: '/admin-ticket/[id]',
@@ -34,7 +30,6 @@ const TicketItem = ({ item }: { item: Ticket }) => {
   };
   
   return (
-    // --- 3. Make it pressable ---
     <Pressable 
       onPress={onPress} 
       style={[styles.ticket, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}
@@ -56,7 +51,6 @@ export default function AdminScreen() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // --- PROTECTION & DATA FETCHING ---
   useEffect(() => {
     if (profile) { 
       if (profile.role !== 'admin') {
@@ -81,7 +75,6 @@ export default function AdminScreen() {
     }
     setLoading(false);
   };
-  // --- END ---
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
@@ -117,7 +110,6 @@ export default function AdminScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
